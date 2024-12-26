@@ -305,4 +305,46 @@ const saveProfile = async () => {
   opacity: 0;
   transform: translateY(-20px);
 }
+/* Responsive Design */
+@media (max-width: 1024px) {
+  /* Tablet and smaller devices */
+  .form-container {
+    flex-direction: column; /* Stack the form sections vertically */
+  }
+
+  .main-form {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .additional-section {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr; /* Single column layout */
+  }
+}
+
+@media (max-width: 500px) {
+  /* Mobile devices */
+  .edit-profile-container {
+    padding: 15px;
+  }
+
+  .main-form {
+    padding: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr; /* Single column layout */
+  }
+
+  .toggle-btn,
+  .save-btn {
+    width: 100%;
+  }
+}
 </style>
