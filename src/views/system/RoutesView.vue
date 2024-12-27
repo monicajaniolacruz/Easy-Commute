@@ -10,7 +10,7 @@ const { mobile } = useDisplay()
     <!-- Background Video -->
     <div class="video-container">
       <video autoplay muted loop class="background-video">
-        <source src="/public/images/home.mp4" type="video/mp4" />
+        <source src="/public/images/ride.mp4" type="video/mp4" />
       </video>
     </div>
 
