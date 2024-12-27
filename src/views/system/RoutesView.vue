@@ -10,7 +10,7 @@ const { mobile } = useDisplay()
     <!-- Background Video -->
     <div class="video-container">
       <video autoplay muted loop class="background-video">
-        <source src="/public/images/ride.mp4" type="video/mp4" />
+        <source src="/public/images/rides.mp4" type="video/mp4" />
       </video>
     </div>
 
@@ -83,7 +83,7 @@ const { mobile } = useDisplay()
 }
 
 .second-row {
-  transform: translate(32%, 400%);
+  transform: translate(32%, 480%);
   width: 60%;
 }
 </style>
