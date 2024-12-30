@@ -80,31 +80,28 @@ export default {
         {
           id: '1',
           barangays: [
-            { name: 'Bangcasi Airport' },
             { name: 'Dumalagan Butuan' },
             { name: 'J.C Aquino Avenue' },
             { name: 'A.D. Curato St. Butuan' },
-            { name: 'Durano St. Butuan' },
-            { name: 'T. Calo St.Butuan' },
+            { name: 'Dadagwapo Vulcanizing' },
+            { name: '	ZCC Central Mall' },
           ],
         },
         {
           id: '2',
           barangays: [
-            { name: 'Bangcasi' },
-            { name: 'Dumalagan' },
-            { name: 'J.C Aquino Avenue' },
-            { name: 'North Montilla Blvd' },
-            { name: 'T. Calo St.Butuan' },
-            { name: 'J.C Aquino Ave' },
-            { name: 'Dumalagan' },
+            { name: 'Dumalagan Butuan' },
+            { name: '	ZCC Central Mall' },
+            { name: 'Amigotell (T. Calo St.) ' },
+            { name: 'Ester Luna Street' },
+            { name: '	ZCC Central Mall ' },
           ],
         },
         {
           id: '4',
           barangays: [
-            { name: 'Bangcasi' },
             { name: 'Dumalagan' },
+            { name: 'Bancasi Covered Court' },
             { name: 'J.C Aquino Avenue' },
             { name: 'A. D. Curato St. Butuan' },
             { name: 'T. Sanchez St. Butuan' },
@@ -153,54 +150,6 @@ export default {
           ],
         },
         {
-          id: '12',
-          barangays: [
-            { name: 'Amparo Butuan' },
-            { name: 'Bit-os' },
-            { name: 'Gaisano Butuan' },
-            { name: 'San Vicente Butuan City' },
-            { name: 'Montilla Blvd. Butuan' },
-            { name: 'Holy Redeemer' },
-            { name: 'City Hall' },
-            { name: 'Mandacpan Butuan City' },
-          ],
-        },
-        {
-          id: '13',
-          barangays: [
-            { name: 'Banza National High School Butuan' },
-            { name: 'Brgy. Maug Butuan City' },
-            { name: 'Mahogany Butuan City' },
-            { name: 'Baan Butuan' },
-            { name: 'M. Calo St. Butuan' },
-            { name: 'G. Flores Avenue Butuan' },
-            { name: 'Rosales St. Butuan City' },
-            { name: 'North Montilla Blvd.' },
-            { name: 'Obrero Elem. School' },
-            { name: 'Langihan Public Market' },
-            { name: 'Butuan City Hall' },
-            { name: 'J. Rosales St.' },
-            { name: 'J. C. Aquino Ave. (DBP)' },
-            { name: 'Baan Viaduct' },
-            { name: 'Brgy. Mahogany' },
-            { name: 'Brgy. Maug' },
-            { name: 'Brgy. Banza' },
-          ],
-        },
-        {
-          id: '10',
-          barangays: [
-            { name: 'Dumalagan Butuan' },
-            { name: 'J.C. Aquino Ave. Butuan' },
-            { name: 'Baan Butuan' },
-            { name: 'Baan Km. 3' },
-            { name: 'Tiniwisan Butuan' },
-            { name: 'Philippine Science High School Butuan' },
-            { name: 'Ampayon' },
-            { name: 'Vice Versa' },
-          ],
-        },
-        {
           id: '7',
           barangays: [
             { name: 'De Oro Butuan' },
@@ -232,6 +181,53 @@ export default {
             { name: 'Ampayon' },
             { name: 'Antongalon Butuan' },
             { name: 'Taligaman Butuan' },
+          ],
+        },
+        {
+          id: '10',
+          barangays: [
+            { name: 'Dumalagan Butuan' },
+            { name: 'BMC Road' },
+            { name: 'Magsaysay Viaduct Bridge 1' },
+            { name: 'Ampayon' },
+            { name: 'J.C. Aquino Ave. Butuan' },
+          ],
+        },
+        {
+          id: '12',
+          barangays: [
+            { name: 'Amparo Butuan' },
+            { name: 'North Montilla Boulevard' },
+            { name: 'Holy Redeemer Parish Church' },
+            { name: 'Butuan City Hall' },
+            { name: 'Gaisano Butuan' },
+            { name: 'South Montilla Boulevard' },
+            { name: 'San Vicente Butuan City' },
+            { name: 'Mandacpan Butuan City' },
+            { name: 'Bit-os' },
+            { name: 'Vice versa' },
+          ],
+        },
+        {
+          id: '13',
+          barangays: [
+            { name: 'Banza National High School Butuan' },
+            { name: 'Brgy. Maug Butuan City' },
+            { name: 'Mahogany Butuan City' },
+            { name: 'Baan Butuan' },
+            { name: 'M. Calo St. Butuan' },
+            { name: 'G. Flores Avenue Butuan' },
+            { name: 'Rosales St. Butuan City' },
+            { name: 'North Montilla Blvd.' },
+            { name: 'Obrero Elem. School' },
+            { name: 'Langihan Public Market' },
+            { name: 'Butuan City Hall' },
+            { name: 'J. Rosales St.' },
+            { name: 'J. C. Aquino Ave. (DBP)' },
+            { name: 'Baan Viaduct' },
+            { name: 'Brgy. Mahogany' },
+            { name: 'Brgy. Maug' },
+            { name: 'Brgy. Banza' },
           ],
         },
         {
@@ -511,6 +507,12 @@ export default {
 <style scoped>
 /* Modal Styles */
 
+@media (max-width: 600px) {
+  .leaflet-routing-container {
+    width: 150px;
+    font-size: 5px;
+  }
+}
 .background-video {
   position: fixed;
   top: 0;
@@ -564,8 +566,9 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 80%;
-  max-width: 600px;
+  max-width: 700px;
   box-shadow: 0px 4px 6px rgba(240, 238, 238, 0.91);
+  overflow-y: auto; /* Enable scrolling if content overflows */
 }
 
 .close-btn {
@@ -646,5 +649,65 @@ export default {
   height: 70vh;
   margin-top: 10px;
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .routes-grid {
+    grid-template-columns: 1fr; /* Stack cards vertically on smaller screens */
+  }
+
+  .modal-content {
+    width: 90%; /* Increase the width on smaller screens */
+    padding: 15px; /* Adjust padding */
+    max-height: 50vh; /* Smaller max height for medium screens */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+  }
+
+  .save-button,
+  .close-modal-button {
+    font-size: 14px; /* Make buttons smaller on mobile */
+    padding: 8px 16px;
+  }
+
+  #search-container {
+    flex-direction: column; /* Stack search inputs on smaller screens */
+    gap: 15px;
+  }
+
+  #search-container select {
+    font-size: 12px; /* Smaller font size for mobile */
+    padding: 6px;
+  }
+
+  .route-card {
+    padding: 15px; /* Adjust padding for mobile */
+  }
+
+  #map {
+    height: 40vh; /* Adjust map size for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .save-button,
+  .close-modal-button {
+    font-size: 12px;
+    padding: 6px 12px; /* Even smaller buttons on very small screens */
+  }
+
+  .modal-content {
+    width: 95%; /* Allow modal content to take more space on very small screens */
+    padding: 10px;
+    max-height: 90vh; /* Further reduce max height on very small screens */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+  }
+
+  .route-card {
+    padding: 12px; /* Further reduce padding on small screens */
+  }
+
+  #map {
+    height: 30vh; /* Adjust map size for very small screens */
+  }
 }
 </style>
