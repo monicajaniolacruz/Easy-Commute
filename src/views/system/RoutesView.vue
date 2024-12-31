@@ -83,7 +83,7 @@ const { mobile } = useDisplay()
 }
 
 .second-row {
-  transform: translate(32%, 480%);
+  transform: translate(32%, 430%);
   width: 60%;
 }
 </style>
