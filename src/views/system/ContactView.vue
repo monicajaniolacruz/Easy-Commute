@@ -1,6 +1,6 @@
 <script setup>
 import { useDisplay } from 'vuetify'
-import AppLayout from '@/components/AppLayout.vue';
+import AppLayout from '@/components/AppLayout.vue'
 
 const { mobile } = useDisplay()
 </script>
@@ -13,8 +13,6 @@ const { mobile } = useDisplay()
         <source src="/public/images/background.mp4" type="video/mp4" />
       </video>
     </div>
-
-
 
     <!-------------------------------------------------------- ANILOV -------------------------------------------------------------------->
     <div class="card-1">
@@ -262,7 +260,6 @@ const { mobile } = useDisplay()
   overflow: hidden;
 }
 
-
 .button-row {
   margin-top: 20px; /* Add some spacing between rows */
 }
@@ -442,5 +439,141 @@ const { mobile } = useDisplay()
   height: 150px; /* Set the height */
   border-radius: 50%; /* Optional: Make the image circular */
   transform: translate(70%, 0%);
+}
+/* Card Responsiveness */
+@media (max-width: 1200px) {
+  .card-1,
+  .card-2,
+  .card-3 {
+    position: relative;
+    top: 10%; /* Adjust vertical position */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Adjust gap between elements */
+    width: 60%; /* Reduce width for better fit on smaller screens */
+    margin-bottom: 20px;
+  }
+
+  .name {
+    font-size: 1em; /* Slightly smaller text */
+  }
+  .images img {
+    width: 100px;
+    height: 100px;
+    transform: translate(0%, 0%);
+  }
+
+  .info {
+    font-size: 0.8em;
+  }
+
+  .child {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 992px) {
+  .card-1,
+  .card-2,
+  .card-3 {
+    position: relative;
+    top: 10%; /* Adjust vertical position */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 60%; /* Make cards smaller */
+    margin-bottom: 20px;
+  }
+
+  .child {
+    width: 35px;
+    height: 35px;
+  }
+  .images img {
+    width: 100px;
+    height: 100px;
+    transform: translate(0%, 0%);
+  }
+
+  .button-row {
+    flex-direction: column;
+    margin-top: 10px;
+  }
+
+  .background-video {
+    object-position: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-1,
+  .card-2,
+  .card-3 {
+    position: relative;
+    top: 10%; /* Adjust vertical position */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Larger gap for separation */
+    width: 60%; /* Further reduce width for better fitting */
+    margin-bottom: 20px;
+  }
+
+  .child {
+    width: 30px;
+    height: 30px;
+  }
+
+  .images img {
+    width: 100px;
+    height: 100px;
+    transform: translate(0%, 0%);
+  }
+
+  .button-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-1,
+  .card-2,
+  .card-3 {
+    position: relative;
+    top: 10%; /* Adjust vertical position */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Larger gap for separation */
+    width: 60%; /* Almost full width for small screens */
+    margin-bottom: 20px;
+  }
+
+  .child {
+    width: 25px;
+    height: 25px;
+  }
+
+  .images img {
+    width: 80px;
+    height: 80px;
+    transform: translate(0%, 0%);
+  }
+
+  .nav-link {
+    font-size: 12px;
+    margin-right: 10px;
+  }
 }
 </style>
