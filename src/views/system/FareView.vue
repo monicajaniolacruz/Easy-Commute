@@ -1,9 +1,11 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
 import AppLayout from '@/components/AppLayout.vue'
+import EpicSpinners from '@/components/EpicSpinners.vue'
 
 const { mobile } = useDisplay()
+const drawer = ref(false)
 const zoomedImage = ref(null)
 const showModal = ref(false)
 
@@ -16,10 +18,21 @@ const closeModal = () => {
   zoomedImage.value = null // Reset image when closing
   showModal.value = false
 }
+
+const isLoading = ref(true)
+
+onMounted(() => {
+  // Simulate loading
+  setTimeout(() => {
+    isLoading.value = false
+  }, 3000) // Adjust the duration as needed
+})
 </script>
 
 <template>
   <AppLayout>
+    <EpicSpinners v-if="isLoading" :color="'#0000ff'" />
+
     <!-- Background Video -->
     <div class="video-container">
       <video autoplay muted loop class="background-video">
@@ -57,7 +70,7 @@ const closeModal = () => {
       <v-img :src="zoomedImage" class="zoomed-image" @click="closeModal"></v-img>
     </v-dialog>
 
-    <RouterView />
+    <RouterView v-if="!isLoading" />
   </AppLayout>
 </template>
 
@@ -81,6 +94,7 @@ const closeModal = () => {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: black; /* Set the background color to black */
 }
 
 /* Image Container and Overlay Images */

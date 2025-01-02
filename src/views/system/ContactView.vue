@@ -1,14 +1,27 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
 import AppLayout from '@/components/AppLayout.vue'
+import EpicSpinners from '@/components/EpicSpinners.vue'
 
 const { mobile } = useDisplay()
+const isLoading = ref(true)
+
+onMounted(() => {
+  // Simulate loading
+  setTimeout(() => {
+    isLoading.value = false
+  }, 3000) // Adjust the duration as needed (3 seconds here)
+})
 </script>
 
 <template>
   <AppLayout>
+    <!-- Preloader spinner shown while isLoading is true -->
+    <EpicSpinners v-if="isLoading" :color="'#0000ff'" />
+
     <!-- Background Video -->
-    <div class="video-container">
+    <div v-if="!isLoading" class="video-container">
       <video autoplay muted loop class="background-video">
         <source src="/public/images/background.mp4" type="video/mp4" />
       </video>
@@ -239,13 +252,20 @@ const { mobile } = useDisplay()
 </template>
 
 <style scoped>
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 /* Background Video */
 .background-video {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   z-index: -1;
 }
@@ -258,21 +278,15 @@ const { mobile } = useDisplay()
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: black; /* Set the background color to black */
 }
 
+/* Button Rows */
 .button-row {
-  margin-top: 20px; /* Add some spacing between rows */
+  margin-top: 20px;
 }
 
-.first-row {
-  transform: translate(32%, 250%);
-  width: 60%;
-}
-
-.second-row {
-  transform: translate(32%, 900%);
-  width: 60%;
-}
+/* Flexbox Container for Centering */
 .parent {
   width: 100%;
   height: 100%;
@@ -281,6 +295,7 @@ const { mobile } = useDisplay()
   align-items: center;
 }
 
+/* Button Transformations */
 .child {
   width: 50px;
   height: 50px;
@@ -304,13 +319,16 @@ const { mobile } = useDisplay()
 .child-1:hover {
   box-shadow: 0px 10px 10px #1e90ff;
 }
+
 .child-2:hover {
   box-shadow: 0px 10px 10px #ff00ff;
 }
+
 .child-3:hover {
   box-shadow: 0px 10px 10px #000000;
 }
 
+/* Button Styling */
 .button {
   cursor: pointer;
   width: 100%;
@@ -327,67 +345,9 @@ const { mobile } = useDisplay()
     translateZ(10px);
 }
 
-.child-1:hover {
-  box-shadow: 0px 10px 10px #1e90ff;
-}
-.child-2:hover {
-  box-shadow: 0px 10px 10px #ff00c8;
-}
-.child-3:hover {
-  box-shadow: 0px 10px 10px #000;
-}
-
-/* From Uiverse.io by Praashoo7 */
-.card-1 {
-  width: 22em;
-  height: 26.5em;
-  background: #171717;
-  transition: 1s ease-in-out;
-  clip-path: polygon(
-    30px 0%,
-    100% 0,
-    100% calc(100% - 30px),
-    calc(100% - 30px) 100%,
-    0 100%,
-    0% 30px
-  );
-  border-top-right-radius: 20px;
-  border-bottom-left-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  transform: translate(50%, 50%);
-}
-
-.card-1 a {
-  color: white;
-  transition: 0.4s ease-in-out;
-}
-
-.card-2 {
-  width: 22em;
-  height: 26.5em;
-  background: #171717;
-  transition: 1s ease-in-out;
-  clip-path: polygon(
-    30px 0%,
-    100% 0,
-    100% calc(100% - 30px),
-    calc(100% - 30px) 100%,
-    0 100%,
-    0% 30px
-  );
-  border-top-right-radius: 20px;
-  border-bottom-left-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  transform: translate(170%, -50%);
-}
-
-.card-2 a {
-  color: white;
-  transition: 0.4s ease-in-out;
-}
-
+/* Card Styles */
+.card-1,
+.card-2,
 .card-3 {
   width: 22em;
   height: 26.5em;
@@ -405,9 +365,22 @@ const { mobile } = useDisplay()
   border-bottom-left-radius: 20px;
   display: flex;
   flex-direction: column;
-  transform: translate(290%, -155%);
 }
 
+.card-1 {
+  transform: translate(30%, 50%);
+}
+
+.card-2 {
+  transform: translate(170%, -50%);
+}
+
+.card-3 {
+  transform: translate(300%, -155%);
+}
+
+.card-1 a,
+.card-2 a,
 .card-3 a {
   color: white;
   transition: 0.4s ease-in-out;
@@ -430,16 +403,21 @@ const { mobile } = useDisplay()
   margin: 1em;
 }
 
-.card-1 a:hover {
+.card-1 a:hover,
+.card-2 a:hover,
+.card-3 a:hover {
   color: red;
 }
 
 .images img {
-  width: 150px; /* Set the size of the image */
-  height: 150px; /* Set the height */
-  border-radius: 50%; /* Optional: Make the image circular */
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
   transform: translate(70%, 0%);
 }
+
+/* Responsive Styles */
+
 /* Card Responsiveness */
 @media (max-width: 1200px) {
   .card-1,
