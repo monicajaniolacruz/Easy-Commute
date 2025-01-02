@@ -20,9 +20,7 @@ const isMobile = computed(() => xsOnly.value)
     <v-app-bar app flat class="transparent-navbar">
       <v-container class="d-flex align-center">
         <!-- Logo -->
-        <v-app-bar-title class="logo">
-          Easy Commute
-        </v-app-bar-title>
+        <v-app-bar-title class="logo"> Easy Commute </v-app-bar-title>
 
         <!-- Navigation -->
         <v-spacer></v-spacer>
@@ -180,6 +178,7 @@ const isMobile = computed(() => xsOnly.value)
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: black; /* Set the background color to black */
 }
 
 .logo {
@@ -187,7 +186,8 @@ const isMobile = computed(() => xsOnly.value)
   font-weight: bold;
   color: white;
   user-select: none;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva,
+    Verdana, sans-serif;
 }
 .transparent-navbar {
   background-color: transparent;
@@ -363,7 +363,6 @@ const isMobile = computed(() => xsOnly.value)
     background-color: transparent; /* Keep background transparent */
   }
 }
-
 
 /* Medium Devices (e.g., Tablets) */
 @media (min-width: 601px) and (max-width: 960px) {
