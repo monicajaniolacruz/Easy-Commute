@@ -340,6 +340,12 @@ export default {
         this.routeControl = L.Routing.control({
           waypoints: locations,
         }).addTo(this.map)
+
+        const routingContainer = document.querySelector('.leaflet-routing-container')
+        if (routingContainer) {
+          routingContainer.style.width = '200px' // Adjust the width
+          routingContainer.style.fontSize = '12px' // Adjust font size
+        }
       }
     },
     openRouteModal(route) {
@@ -513,6 +519,7 @@ export default {
     font-size: 5px;
   }
 }
+
 .background-video {
   position: fixed;
   top: 0;
@@ -566,9 +573,8 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 80%;
-  max-width: 700px;
+  max-width: 600px;
   box-shadow: 0px 4px 6px rgba(240, 238, 238, 0.91);
-  overflow-y: auto; /* Enable scrolling if content overflows */
 }
 
 .close-btn {
