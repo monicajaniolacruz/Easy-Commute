@@ -1,28 +1,40 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
 import AppLayout from '@/components/AppLayout.vue'
+import EpicSpinners from '@/components/EpicSpinners.vue'
 
 // Vuetify display composable for mobile detection
 const { mobile } = useDisplay()
+
+const isLoading = ref(true)
+
+onMounted(() => {
+  // Simulate loading
+  setTimeout(() => {
+    isLoading.value = false
+  }, 3000) // Adjust the duration as needed
+})
 </script>
 
 <template>
   <AppLayout>
-    <!-- Background Video and Content Overlay -->
-    <div class="video-container">
-      <video autoplay muted loop class="background-video">
-        <source src="/public/images/homeview.mp4" type="video/mp4" />
-      </video>
-    </div>
-
-    <!-- Overlay Content -->
-    <div class="overlay">
-      <div class="main-title">DON'T KNOW</div>
-      <div class="subtitle">WHERE TO GO?</div>
-      <router-link to="/routes" style="text-decoration: none">
-        <v-btn class="contact-button"> GET STARTED </v-btn>
-      </router-link>
+    <EpicSpinners v-if="isLoading" />
+    <div v-else>
+      <!-- Background Video and Content Overlay -->
+      <div class="video-container">
+        <video autoplay muted loop class="background-video">
+          <source src="/public/images/homeview.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <!-- Overlay Content -->
+      <div class="overlay">
+        <div class="main-title">DON'T KNOW</div>
+        <div class="subtitle">WHERE TO GO?</div>
+        <router-link to="/routes" style="text-decoration: none">
+          <v-btn class="contact-button"> GET STARTED </v-btn>
+        </router-link>
+      </div>
     </div>
   </AppLayout>
 </template>
@@ -47,6 +59,7 @@ const { mobile } = useDisplay()
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: black; /* Set the background color to black */
 }
 
 /* Overlay */
