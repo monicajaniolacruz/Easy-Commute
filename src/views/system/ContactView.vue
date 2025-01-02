@@ -32,7 +32,7 @@ onMounted(() => {
       <!-- Use an <img> tag to display the image -->
       <div class="images">
         <!-- Use <img> tag instead of <source> -->
-        <img src="/public/images/Anilov.png" alt="Anilov's Image" />
+        <img src="/public/images/anilov.png" alt="Anilov's Image" />
       </div>
       <span class="name">Anilov A. Magatao</span>
       <strong class="info">-Frontend Developer-</strong>
