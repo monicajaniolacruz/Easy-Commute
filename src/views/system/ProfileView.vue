@@ -1,69 +1,76 @@
 <template>
   <AppLayout>
-    <!-- Background Video -->
-    <div class="video-container">
-      <video autoplay muted loop class="background-video">
-        <source src="/public/images/background.mp4" type="video/mp4" />
-      </video>
-    </div>
+    <!-- Preloader Spinner -->
+    <EpicSpinners v-if="isLoading" :color="'#0000ff'" />
 
-    <!-- Edit Profile Form -->
-    <div class="edit-profile-container">
-      <form @submit.prevent="saveProfile" class="form-container">
-        <!-- Main Form Section -->
-        <div class="main-form">
-          <h3>Edit Profile</h3>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Profile Picture</label>
-              <input type="file" @change="handleImageUpload" />
-            </div>
-            <div class="form-group">
-              <label>Username</label>
-              <input v-model="form.username" type="text" placeholder="Username" />
-            </div>
-            <div class="form-group">
-              <label>First Name</label>
-              <input v-model="form.firstName" type="text" placeholder="First Name" />
-            </div>
-            <div class="form-group">
-              <label>Last Name</label>
-              <input v-model="form.lastName" type="text" placeholder="Last Name" />
-            </div>
-          </div>
-          <button type="button" class="toggle-btn" @click="toggleFields">
-            {{ showAdditionalFields ? 'Hide Additional Fields' : 'Show Additional Fields' }}
-          </button>
-        </div>
+    <!-- Main Content (Visible after loading) -->
+    <div v-if="!isLoading">
+      <!-- Background Video -->
+      <div class="video-container">
+        <video autoplay muted loop class="background-video">
+          <source src="/public/images/background.mp4" type="video/mp4" />
+        </video>
+      </div>
 
-        <!-- Additional Section with Transition -->
-        <transition name="fade-slide">
-          <div v-if="showAdditionalFields" class="additional-section">
+      <!-- Edit Profile Form -->
+      <div class="edit-profile-container">
+        <form @submit.prevent="saveProfile" class="form-container">
+          <!-- Main Form Section -->
+          <div class="main-form">
+            <h3>Edit Profile</h3>
             <div class="form-grid">
               <div class="form-group">
-                <label>Address</label>
-                <input v-model="form.address" type="text" placeholder="Address" />
+                <label>Profile Picture</label>
+                <input type="file" @change="handleImageUpload" />
               </div>
               <div class="form-group">
-                <label>Phone Number</label>
-                <input v-model="form.phoneNumber" type="text" placeholder="Phone Number" />
+                <label>Username</label>
+                <input v-model="form.username" type="text" placeholder="Username" />
               </div>
-              <div class="form-group full-width">
-                <label>About Me</label>
-                <textarea v-model="form.about" placeholder="About Me"></textarea>
+              <div class="form-group">
+                <label>First Name</label>
+                <input v-model="form.firstName" type="text" placeholder="First Name" />
+              </div>
+              <div class="form-group">
+                <label>Last Name</label>
+                <input v-model="form.lastName" type="text" placeholder="Last Name" />
               </div>
             </div>
-            <button type="submit" class="save-btn">Save</button>
+            <button type="button" class="toggle-btn" @click="toggleFields">
+              {{ showAdditionalFields ? 'Hide Additional Fields' : 'Show Additional Fields' }}
+            </button>
           </div>
-        </transition>
-      </form>
+
+          <!-- Additional Section with Transition -->
+          <transition name="fade-slide">
+            <div v-if="showAdditionalFields" class="additional-section">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Address</label>
+                  <input v-model="form.address" type="text" placeholder="Address" />
+                </div>
+                <div class="form-group">
+                  <label>Phone Number</label>
+                  <input v-model="form.phoneNumber" type="text" placeholder="Phone Number" />
+                </div>
+                <div class="form-group full-width">
+                  <label>About Me</label>
+                  <textarea v-model="form.about" placeholder="About Me"></textarea>
+                </div>
+              </div>
+              <button type="submit" class="save-btn">Save</button>
+            </div>
+          </transition>
+        </form>
+      </div>
     </div>
   </AppLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AppLayout from '@/components/AppLayout.vue'
+import EpicSpinners from '@/components/EpicSpinners.vue'
 import { supabase } from '../../supabaseClient'
 
 const form = ref({
@@ -165,6 +172,15 @@ const saveProfile = async () => {
     alert('An unexpected error occurred. Please try again.')
   }
 }
+
+const isLoading = ref(true)
+
+onMounted(() => {
+  // Simulate loading
+  setTimeout(() => {
+    isLoading.value = false
+  }, 3000) // Adjust the duration as needed
+})
 </script>
 
 <style scoped>
