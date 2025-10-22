@@ -70,11 +70,11 @@ function togglePasswordVisibility() {
   <v-responsive class="border rounded">
     <v-app>
       <!-- Background Video -->
-      <!-- <div class="video-container"> -->
-      <!-- <video autoplay muted loop class="background-video"> -->
-      <!-- <source src="/public/images/register.mp4" type="video/mp4" /> -->
-      <!-- </video> -->
-      <!-- </div> -->
+      <div class="video-container">
+        <video autoplay muted loop class="background-video">
+          <source src="/public/images/register.mp4" type="video/mp4" />
+        </video>
+      </div>
       <!-- HEADER NAVBAR -->
       <v-app-bar app flat class="transparent-navbar">
         <v-container class="d-flex align-center">
