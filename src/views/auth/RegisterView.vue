@@ -1,20 +1,27 @@
 <script setup>
-import { requiredValidator, emailValidator } from '@/utils/validators'
-import { supabase, formActionDefault } from '@/utils/supabase'
+import {
+  requiredValidator,
+  emailValidator,
+  passwordValidator,
+  confirmedValidator,
+} from '@/utils/validators'
 import { ref } from 'vue'
+import { supabase, formActionDefault } from '@/utils/supabase'
 import { useRouter } from 'vue-router'
-
-const password = ref('')
-const showPassword = ref(false)
-const currentForm = ref('login')
-const refVform = ref()
 const showLoginForm = ref(false) // 👈 NEW state to control visibility
 
 const router = useRouter()
 
+const IsPasswordVisible = ref(false)
+const IsPasswordConfirmVisible = ref(false)
+const currentForm = ref('register')
+const refVform = ref()
+
 const formDataDefault = {
+  fullname: '',
   email: '',
   password: '',
+  confirmPassword: '',
 }
 
 const formData = ref({
@@ -30,20 +37,27 @@ function toggleLoginForm() {
   showLoginForm.value = !showLoginForm.value
 }
 
-const onLogin = async () => {
+const onRegister = async () => {
   formAction.value = { ...formActionDefault }
   formAction.value.formProcess = true
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signUp({
     email: formData.value.email,
     password: formData.value.password,
+    options: {
+      data: {
+        fullname: formData.value.fullname,
+      },
+    },
   })
+
   if (error) {
+    console.log(error)
     formAction.value.formErrorMessage = error.message
     formAction.value.formStatus = error.status
   }
   if (data) {
-    formAction.value.formSuccessMessage = 'Successfully Logged Account.'
+    formAction.value.formSuccessMessage = 'Successfully Registered Account.'
 
     // Wait a moment to show success
     setTimeout(() => {
@@ -57,12 +71,8 @@ const onLogin = async () => {
 
 const onFormSubmit = () => {
   refVform.value?.validate().then(({ valid }) => {
-    if (valid) onLogin()
+    if (valid) onRegister()
   })
-}
-
-function togglePasswordVisibility() {
-  showPassword.value = !showPassword.value
 }
 </script>
 
@@ -82,7 +92,7 @@ function togglePasswordVisibility() {
           <v-spacer></v-spacer>
           <!-- 🔘 Sign in button toggles form -->
           <button class="ml-3 adjustable-button" @click="toggleLoginForm">
-            {{ showLoginForm ? 'Close' : 'Sign in' }}
+            {{ showLoginForm ? 'Close' : 'Sign up' }}
           </button>
         </v-container>
       </v-app-bar>
@@ -108,6 +118,15 @@ function togglePasswordVisibility() {
                 <v-card-text class="pa-6 transparent-card white--text">
                   <v-form class="mt-5" ref="refVform" @submit.prevent="onFormSubmit">
                     <v-text-field
+                      v-model="formData.fullname"
+                      label="Full Name"
+                      prepend-icon="mdi-account"
+                      variant="filled"
+                      color="white"
+                      hide-details
+                      :rules="[requiredValidator]"
+                    ></v-text-field>
+                    <v-text-field
                       v-model="formData.email"
                       label="Email"
                       prepend-icon="mdi-email"
@@ -123,22 +142,35 @@ function togglePasswordVisibility() {
                       prepend-icon="mdi-lock"
                       variant="filled"
                       color="white"
-                      :type="showPassword ? 'text' : 'password'"
-                      :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                      @click:append="togglePasswordVisibility"
-                      hide-details
-                      :rules="[requiredValidator]"
+                      :type="IsPasswordVisible ? 'text' : 'password'"
+                      :append-icon="IsPasswordVisible ? 'mdi-eye' : 'mdi-eye-off'"
+                      @click:append="IsPasswordVisible = !IsPasswordVisible"
+                      :rules="[requiredValidator, passwordValidator]"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="formData.confirmPassword"
+                      label="Confirm Password"
+                      prepend-icon="mdi-lock-check"
+                      variant="filled"
+                      color="white"
+                      :type="IsPasswordConfirmVisible ? 'text' : 'password'"
+                      :append-icon="IsPasswordConfirmVisible ? 'mdi-eye' : 'mdi-eye-off'"
+                      @click:append="IsPasswordConfirmVisible = !IsPasswordConfirmVisible"
+                      :rules="[
+                        requiredValidator,
+                        confirmedValidator(formData.confirmPassword, formData.password),
+                      ]"
                     ></v-text-field>
 
                     <v-btn class="mt-4 gradient-btn" type="submit" block rounded elevation="6">
-                      SIGN IN
+                      SIGN UP
                     </v-btn>
                   </v-form>
 
                   <v-divider class="my-5"></v-divider>
                   <h5 class="text-center">
-                    Don't have an account?
-                    <RouterLink class="btn-cyan" to="/register">SIGNUP</RouterLink>
+                    Already have an account?
+                    <RouterLink class="btn-cyan" to="/">LOGIN</RouterLink>
                   </h5>
                 </v-card-text>
               </v-card>

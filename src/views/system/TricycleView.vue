@@ -54,10 +54,6 @@
           </select>
         </div>
 
-        <button @click="saveRoute(startingLocation, endLocation)" class="save-button">
-          Save Route
-        </button>
-
         <!-- Map -->
         <div id="map" style="height: 70vh; margin-top: 10px"></div>
 
