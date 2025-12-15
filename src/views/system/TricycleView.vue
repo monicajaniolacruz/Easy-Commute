@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { supabase } from '../../supabaseClient'
+import { supabase } from '@/utils/supabase'
 import L from 'leaflet' // Import Leaflet
 import 'leaflet-routing-machine' // Import Leaflet Routing Machine
 import { ref, onMounted, watch } from 'vue'

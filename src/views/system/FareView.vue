@@ -5,7 +5,6 @@ import AppLayout from '@/components/AppLayout.vue'
 import EpicSpinners from '@/components/EpicSpinners.vue'
 
 const { mobile } = useDisplay()
-const drawer = ref(false)
 const zoomedImage = ref(null)
 const showModal = ref(false)
 
@@ -15,17 +14,16 @@ const openModal = (image) => {
 }
 
 const closeModal = () => {
-  zoomedImage.value = null // Reset image when closing
+  zoomedImage.value = null
   showModal.value = false
 }
 
 const isLoading = ref(true)
 
 onMounted(() => {
-  // Simulate loading
   setTimeout(() => {
     isLoading.value = false
-  }, 3000) // Adjust the duration as needed
+  }, 3000)
 })
 </script>
 
@@ -41,22 +39,32 @@ onMounted(() => {
     </div>
 
     <!-- Images Overlay -->
-    <div class="image-container-1">
-      <img
-        src="/images/tricyclefare.png"
-        alt="Tricycle Fare"
-        class="overlay-image"
-        @click="openModal('/images/tricyclefare.png')"
-      />
-    </div>
+    <div class="images-overlay" v-if="!isLoading">
+      <!-- Single top tricycle fare image -->
+      <div class="image-container">
+        <img
+          src="/images/tricyclefare.png"
+          alt="Tricycle Fare"
+          class="overlay-image top-image"
+          @click="openModal('/images/tricyclefare.png')"
+        />
+      </div>
 
-    <div class="image-container-2">
-      <img
-        src="/images/multicabfare.jpg"
-        alt="Multicab Fare"
-        class="overlay-image"
-        @click="openModal('/images/multicabfare.jpg')"
-      />
+      <!-- Two side-by-side multicab images -->
+      <div class="images-row">
+        <img
+          src="/images/multicab_fare.jpg"
+          alt="Multicab Fare"
+          class="overlay-image side-by-side"
+          @click="openModal('/images/multicab_fare.jpg')"
+        />
+        <img
+          src="/images/modernmulticabfare.jpg"
+          alt="Multicab Fare"
+          class="overlay-image side-by-side"
+          @click="openModal('/images/modernmulticabfare.jpg')"
+        />
+      </div>
     </div>
 
     <!-- Fullscreen Zoomed Image -->
@@ -86,7 +94,6 @@ onMounted(() => {
   z-index: -1;
 }
 
-/* Video Container */
 .video-container {
   position: fixed;
   top: 0;
@@ -94,37 +101,68 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: black; /* Set the background color to black */
+  background-color: black;
 }
 
-/* Image Container and Overlay Images */
-.image-container-1,
-.image-container-2 {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
+/* Overlay container for all images */
+.images-overlay {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 40px;
+  padding: 80px 20px;
+  width: 100%;
+  box-sizing: border-box;
   z-index: 1;
 }
 
-.image-container-2 {
-  transform: translateX(-50%) translateY(80%); /* Adjust the position of the second image */
-}
-
-.overlay-image {
+/* Single image container */
+.image-container {
+  display: flex;
+  justify-content: center;
   width: 100%;
-  max-width: 600px; /* Keeps the image within a limit */
-  height: auto; /* Maintains aspect ratio */
-  border-radius: 10px;
-  cursor: pointer;
-  object-fit: contain;
 }
 
-/* Zoomed Image */
+/* Top Tricycle Fare Image */
+.overlay-image.top-image {
+  width: 80%;
+  max-width: 500px;
+  height: auto;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.3s;
+}
+
+.overlay-image.top-image:hover {
+  transform: scale(1.05);
+}
+
+/* Row for side-by-side images */
+.images-row {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Side-by-side multicab images */
+.overlay-image.side-by-side {
+  width: calc(50% - 10px);
+  max-width: 500px;
+  height: auto;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.3s;
+}
+
+.overlay-image.side-by-side:hover {
+  transform: scale(1.05);
+}
+
+/* Fullscreen zoomed image */
 .zoomed-image {
   width: 100%;
   height: 100%;
@@ -133,30 +171,49 @@ onMounted(() => {
   cursor: zoom-out;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 600px) {
-  /* Adjust image width */
-  .overlay-image {
-    width: 90%; /* Adjust width of images on mobile */
-    max-width: none; /* Remove max-width constraint */
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .overlay-image.side-by-side {
+    width: 45%;
   }
+}
 
-  /* Adjust image containers for better positioning on mobile */
-  .image-container-1,
-  .image-container-2 {
-    position: relative;
-    top: 10%; /* Adjust vertical position */
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
+@media (max-width: 992px) {
+  .overlay-image.side-by-side {
+    width: 48%;
+  }
+  .overlay-image.top-image {
+    width: 85%;
+  }
+}
+
+@media (max-width: 768px) {
+  .images-row {
     flex-direction: column;
+    gap: 15px;
     align-items: center;
-    gap: 10px; /* Reduce gap between images */
   }
 
-  /* Image 2 (second image) */
-  .image-container-2 {
-    top: 20%; /* Adjust vertical position of the second image */
+  .overlay-image.side-by-side {
+    width: 90%;
+  }
+
+  .overlay-image.top-image {
+    width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .images-overlay {
+    padding: 60px 10px;
+  }
+
+  .overlay-image.side-by-side {
+    width: 100%;
+  }
+
+  .overlay-image.top-image {
+    width: 100%;
   }
 }
 </style>

@@ -1,103 +1,84 @@
-<template>
-  <AppLayout>
-    <!-- Preloader Spinner -->
-    <EpicSpinners v-if="isLoading" :color="'#0000ff'" />
-
-    <!-- Main Content (Visible after loading) -->
-    <div v-if="!isLoading">
-      <!-- Background Video -->
-      <div class="video-container">
-        <video autoplay muted loop class="background-video">
-          <source src="/public/images/background.mp4" type="video/mp4" />
-        </video>
-      </div>
-
-      <!-- Edit Profile Form -->
-      <div class="edit-profile-container">
-        <form @submit.prevent="saveProfile" class="form-container">
-          <!-- Main Form Section -->
-          <div class="main-form">
-            <h3>Edit Profile</h3>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Profile Picture</label>
-                <input type="file" @change="handleImageUpload" />
-              </div>
-              <div class="form-group">
-                <label>Username</label>
-                <input v-model="form.username" type="text" placeholder="Username" />
-              </div>
-              <div class="form-group">
-                <label>First Name</label>
-                <input v-model="form.firstName" type="text" placeholder="First Name" />
-              </div>
-              <div class="form-group">
-                <label>Last Name</label>
-                <input v-model="form.lastName" type="text" placeholder="Last Name" />
-              </div>
-            </div>
-            <button type="button" class="toggle-btn" @click="toggleFields">
-              {{ showAdditionalFields ? 'Hide Additional Fields' : 'Show Additional Fields' }}
-            </button>
-          </div>
-
-          <!-- Additional Section with Transition -->
-          <transition name="fade-slide">
-            <div v-if="showAdditionalFields" class="additional-section">
-              <div class="form-grid">
-                <div class="form-group">
-                  <label>Address</label>
-                  <input v-model="form.address" type="text" placeholder="Address" />
-                </div>
-                <div class="form-group">
-                  <label>Phone Number</label>
-                  <input v-model="form.phoneNumber" type="text" placeholder="Phone Number" />
-                </div>
-                <div class="form-group full-width">
-                  <label>About Me</label>
-                  <textarea v-model="form.about" placeholder="About Me"></textarea>
-                </div>
-              </div>
-              <button type="submit" class="save-btn">Save</button>
-            </div>
-          </transition>
-        </form>
-      </div>
-    </div>
-  </AppLayout>
-</template>
-
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { supabase } from '@/utils/supabase'
 import AppLayout from '@/components/AppLayout.vue'
-import EpicSpinners from '@/components/EpicSpinners.vue'
-import { supabase } from '../../supabaseClient'
 
-const form = ref({
-  profileImage: null, // Store image file
+/* -----------------------------------------
+  STATE
+----------------------------------------- */
+const profile = ref({
+  id: '',
   username: '',
-  firstName: '',
-  lastName: '',
-  address: '',
-  phoneNumber: '',
-  about: '',
+  fullname: '',
+  phone_number: '',
+  profile_image: '',
+  email: '',
 })
 
-const showAdditionalFields = ref(false)
+const loading = ref(false)
+const editMode = ref(false)
+const formSuccess = ref('')
+const formError = ref('')
+const fileInput = ref(null)
 
-const toggleFields = () => {
-  showAdditionalFields.value = !showAdditionalFields.value
-}
+// GOOGLE LOGIN FLAG
+const isGoogleLogin = ref(false)
 
-// Handle file selection and update form.profileImage
-const handleImageUpload = (event) => {
-  const file = event.target.files[0] // Get the selected file
-  if (file) {
-    form.value.profileImage = file // Set the file to the form object
-  }
-}
+// Change password fields (if needed later)
+const passwordData = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+})
 
-const saveProfile = async () => {
+// Visibility toggles for eye icons
+const showPassword = ref({
+  current: false,
+  new: false,
+  confirm: false,
+})
+
+const passwordSuccess = ref('')
+const passwordError = ref('')
+
+/* -----------------------------------------
+  COMPUTED INITIALS
+----------------------------------------- */
+const initials = computed(() => {
+  let full = (profile.value.fullname || '').trim()
+
+  if (!full) return ''
+
+  // Clean name: remove multiple spaces and non-letter characters from initials
+  const parts = full.replace(/\s+/g, ' ').split(' ').filter(Boolean)
+
+  if (parts.length === 0) return ''
+
+  // Take first letter of first & last word
+  const first = parts[0][0]
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : ''
+
+  // Only letters
+  const safe = (char) => (/[A-Za-z]/.test(char) ? char.toUpperCase() : '')
+
+  const i1 = safe(first)
+  const i2 = safe(last)
+
+  return (i1 + i2).trim()
+})
+
+/* -----------------------------------------
+  LOAD PROFILE
+----------------------------------------- */
+const normalizeName = (name) =>
+  (name || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ') // remove extra spaces
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase()) // capitalize first letter of each word
+
+const getProfile = async () => {
+  loading.value = true
   try {
     const {
       data: { user },
@@ -105,86 +86,213 @@ const saveProfile = async () => {
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      console.error('Error fetching user:', userError?.message || 'User not authenticated')
-      alert('You need to be logged in to save a profile.')
+      loading.value = false
       return
     }
 
-    // Prepare profile data object with form data
-    let profileData = {
-      username: form.value.username,
-      firstName: form.value.firstName,
-      lastName: form.value.lastName,
-      address: form.value.address,
-      phoneNumber: form.value.phoneNumber,
-      about: form.value.about,
-      v_id: user.id, // Link to the authenticated user
-    }
+    isGoogleLogin.value = user?.app_metadata?.provider === 'google'
 
-    // Upload image if provided
-    if (form.value.profileImage) {
-      console.log('Uploading image...')
-      const imageFile = form.value.profileImage // The file from the form
-      const timestamp = Date.now() // Adding timestamp to make the file path unique
-      const filePath = `profiles/${user.id}/${timestamp}-${imageFile.name}` // Path with unique name
+    const meta = user.user_metadata || {}
 
-      // Upload the file to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('profile-images') // Bucket name
-        .upload(filePath, imageFile)
+    const metaFullName =
+      meta.full_name ||
+      meta.name ||
+      (meta.given_name && meta.family_name ? `${meta.given_name} ${meta.family_name}`.trim() : '')
 
-      if (uploadError) {
-        console.error('Image upload failed:', uploadError.message)
-        alert('Failed to upload profile image. Please try again.')
-        return
-      }
+    const metaAvatar = meta.avatar_url || meta.picture || ''
 
-      // Get the public URL of the uploaded image
-      const { data: publicUrlData } = await supabase.storage
-        .from('profile-images')
-        .getPublicUrl(filePath)
-
-      if (!publicUrlData?.publicUrl) {
-        console.error('Failed to get public URL for uploaded image.')
-        alert('Image upload succeeded, but could not retrieve its URL.')
-        return
-      }
-
-      console.log('Image uploaded successfully:', publicUrlData.publicUrl)
-      profileData.profile_image = publicUrlData.publicUrl // Assign the URL to profileData
-    }
-
-    // Insert or update profile data in the database
-    console.log('Saving profile data:', profileData)
     const { data, error } = await supabase
       .from('profiles')
-      .upsert(profileData, { onConflict: ['id'] }) // Use `upsert` to insert or update by user_id
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle()
 
-    if (error) {
-      console.error('Error saving profile:', error.message)
-      alert('Failed to save profile. Please try again.')
+    if (error) throw error
+
+    if (!data) {
+      const fallbackName =
+        metaFullName || ((user.email || '').split('@')[0] || '').replace(/[._\-]/g, ' ')
+
+      const cleanedName = normalizeName(fallbackName)
+
+      const insertPayload = {
+        id: user.id,
+        email: user.email,
+        fullname: cleanedName,
+        profile_image: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      }
+
+      const { error: insertError } = await supabase.from('profiles').insert(insertPayload)
+      if (insertError) throw insertError
+
+      profile.value = { ...profile.value, ...insertPayload }
     } else {
-      console.log('Profile saved successfully:', data)
-      alert('Profile saved successfully!')
+      profile.value = {
+        ...profile.value,
+        ...data,
+        fullname: normalizeName(data.fullname || metaFullName),
+        email: user.email || data.email || '',
+      }
     }
-  } catch (error) {
-    console.error('Unexpected error:', error)
-    alert('An unexpected error occurred. Please try again.')
+  } catch (err) {
+    formError.value = err?.message || String(err)
+  } finally {
+    loading.value = false
   }
 }
 
-const isLoading = ref(true)
+/* -----------------------------------------
+  UPDATE PROFILE
+----------------------------------------- */
+const updateProfile = async () => {
+  try {
+    loading.value = true
 
-onMounted(() => {
-  // Simulate loading
-  setTimeout(() => {
-    isLoading.value = false
-  }, 3000) // Adjust the duration as needed
-})
+    // Clean full name: sentence case, one space
+    const cleanedName = (profile.value.fullname || '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+
+    // Update local profile immediately
+    profile.value.fullname = cleanedName
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        fullname: cleanedName,
+        phone_number: profile.value.phone_number,
+        updated_at: new Date(),
+      })
+      .eq('id', profile.value.id)
+
+    if (error) throw error
+
+    await getProfile() // refresh the rest of the profile
+    formSuccess.value = 'Profile updated successfully!'
+    editMode.value = false
+  } catch (err) {
+    formError.value = err?.message || String(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const triggerFileInput = () => {
+  if (!isGoogleLogin.value) fileInput.value?.click()
+}
+
+onMounted(() => getProfile())
 </script>
 
+<template>
+  <AppLayout>
+    <div class="video-container">
+      <video autoplay muted loop class="background-video">
+        <source src="/images/background.mp4" type="video/mp4" />
+      </video>
+    </div>
+
+    <v-container class="profile-container" fluid>
+      <v-row justify="center">
+        <v-col cols="12" md="8" lg="7">
+          <v-card class="profile-card pa-6" elevation="2">
+            <v-row class="align-center mb-6">
+              <v-col cols="auto">
+                <v-avatar
+                  size="90"
+                  :class="!isGoogleLogin ? 'cursor-pointer hover:opacity-80' : ''"
+                  @click="triggerFileInput"
+                >
+                  <template v-if="isGoogleLogin || !profile.profile_image">
+                    <v-avatar size="90" color="primary">
+                      <span class="text-h4 font-weight-bold text-white">
+                        {{ initials || '?' }}
+                      </span>
+                    </v-avatar>
+                  </template>
+
+                  <template v-else>
+                    <v-img :src="profile.profile_image" alt="Profile Picture" cover />
+                  </template>
+                </v-avatar>
+
+                <input
+                  v-if="!isGoogleLogin"
+                  type="file"
+                  ref="fileInput"
+                  accept="image/*"
+                  class="d-none"
+                  @change="handleImageUpload"
+                />
+              </v-col>
+
+              <v-col>
+                <h3 class="font-weight-bold">
+                  {{ profile.fullname || 'Your Name' }}
+                </h3>
+                <p class="text-grey">{{ profile.email }}</p>
+              </v-col>
+
+              <v-col cols="auto">
+                <v-btn color="primary" @click="editMode = !editMode">
+                  {{ editMode ? 'Cancel' : 'Edit' }}
+                </v-btn>
+              </v-col>
+            </v-row>
+
+            <v-divider />
+
+            <v-form class="mt-6">
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="profile.fullname"
+                    label="Full Name"
+                    :readonly="!editMode"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="profile.phone_number"
+                    label="Phone Number"
+                    :readonly="!editMode"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field v-model="profile.email" label="Email" readonly variant="outlined" />
+                </v-col>
+              </v-row>
+
+              <div class="text-center mt-4" v-if="editMode">
+                <v-btn color="success" class="mr-3" :loading="loading" @click="updateProfile">
+                  Save Changes
+                </v-btn>
+                <v-btn color="grey" variant="tonal" @click="editMode = false">Cancel</v-btn>
+              </div>
+
+              <v-alert v-if="formSuccess" type="success" class="mt-4" variant="tonal">
+                {{ formSuccess }}
+              </v-alert>
+              <v-alert v-if="formError" type="error" class="mt-4" variant="tonal">
+                {{ formError }}
+              </v-alert>
+            </v-form>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </AppLayout>
+</template>
+
 <style scoped>
-/* Background Video */
 .background-video {
   position: fixed;
   top: 0;
@@ -193,7 +301,6 @@ onMounted(() => {
   height: 100%;
   object-fit: cover;
   z-index: -1;
-  min-height: 100vh;
 }
 
 .video-container {
@@ -203,164 +310,38 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: black;
 }
 
-/* Edit Profile Container */
-.edit-profile-container {
-  margin-top: 10vb;
-  display: flex;
-  padding: 20px;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 20px;
-  font-family: Arial, sans-serif;
+.profile-container {
+  background-color: transparent;
+  min-height: 100vh;
+  padding-top: 100px;
+}
+
+.profile-card {
+  border-radius: 16px;
+  background-color: #17172a;
+  color: #f5f5f5;
+  backdrop-filter: blur(8px);
+}
+
+.v-text-field {
+  --v-field-label-color: #cfcfcf !important;
+  --v-field-input-color: #ffffff !important;
+  --v-field-border-color: #3a3a5c !important;
+}
+
+.text-grey {
+  color: #b0b0b0 !important;
+}
+
+.v-btn {
+  font-weight: 600;
+}
+
+.v-alert {
+  background-color: rgba(255, 255, 255, 0.1);
   color: #fff;
-  z-index: 1;
-  position: relative;
-}
-
-/* Form Layout */
-.form-container {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-}
-
-.main-form {
-  flex: 1;
-  background: #17172a;
-  padding: 30px;
-  border-radius: 8px;
-  max-width: 500px;
-}
-
-.additional-section {
-  flex: 0 0 300px;
-  background: #232333;
-  padding: 20px;
-  border-radius: 8px;
-  color: #fff;
-}
-
-/* Grid Layout for Fields */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group.full-width {
-  grid-column: span 2; /* Full row */
-}
-
-/* Input and Textarea Styling */
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background: #232333;
-  color: #fff;
-  font-size: 1rem;
-}
-
-.form-group textarea {
-  resize: none;
-  height: 100px;
-}
-
-/* Toggle Button */
-.toggle-btn {
-  background-color: #007bb5;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.toggle-btn:hover {
-  background-color: #005f8d;
-}
-
-/* Save Button */
-.save-btn {
-  background-color: #007bb5;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 1.1em;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-}
-
-.save-btn:hover {
-  background-color: #005f8d;
-}
-
-/* Transition Effects */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.4s ease;
-}
-
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-/* Responsive Design */
-@media (max-width: 1024px) {
-  /* Tablet and smaller devices */
-  .form-container {
-    flex-direction: column; /* Stack the form sections vertically */
-  }
-
-  .main-form {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .additional-section {
-    width: 100%;
-    max-width: 100%;
-    margin-top: 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr; /* Single column layout */
-  }
-}
-
-@media (max-width: 500px) {
-  /* Mobile devices */
-  .edit-profile-container {
-    padding: 15px;
-  }
-
-  .main-form {
-    padding: 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr; /* Single column layout */
-  }
-
-  .toggle-btn,
-  .save-btn {
-    width: 100%;
-  }
 }
 </style>

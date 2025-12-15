@@ -1,3 +1,26 @@
+<script setup>
+import { isAuthenticated } from '@/utils/supabase'
+import { ref, onMounted } from 'vue'
+import { useDisplay } from 'vuetify'
+import { defineProps } from 'vue'
+import ProfileHeader from './ProfileHeader.vue'
+
+const { mobile } = useDisplay()
+const drawer = ref(false)
+const menu = ref(false)
+
+// Load Variables
+const isLoggedIn = ref(false)
+
+// get authenticated status from supabase
+const getLoggedStatus = async () => {
+  isLoggedIn.value = await isAuthenticated()
+}
+
+// Load Functions during component rendering
+onMounted(() => getLoggedStatus())
+</script>
+
 <template>
   <v-app>
     <!-- Header Section -->
@@ -8,42 +31,18 @@
 
         <!-- Navigation -->
         <v-spacer></v-spacer>
-        <nav v-if="!mobile">
+        <nav v-if="!mobile" class="nav-container">
           <router-link to="/home" class="nav-link">Home</router-link>
           <router-link to="/routes" class="nav-link">Ride</router-link>
           <router-link to="/fare" class="nav-link">Fare</router-link>
           <router-link to="/contact" class="nav-link">Contact Us</router-link>
+          <ProfileHeader v-if="isLoggedIn"></ProfileHeader>
         </nav>
 
         <!-- Mobile Navigation Toggle -->
         <v-btn icon v-if="mobile" @click="drawer = !drawer">
           <v-icon color="white">mdi-menu</v-icon>
         </v-btn>
-
-        <!-- Profile Dropdown Menu -->
-        <v-menu v-model="menu" offset-y>
-          <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props">
-              <div v-if="profileImageUrl" class="profile-image-container">
-                <img :src="profileImageUrl" alt="Profile Image" class="profile-image" />
-              </div>
-
-              <div v-else>
-                <v-icon class="avatar-icon">mdi-account</v-icon>
-                <!-- Display a default icon if no image -->
-              </div>
-            </v-btn>
-          </template>
-
-          <v-list class="dropdown-menu" style="background-color: black">
-            <v-list-item @click="$router.push('/profile')" class="dropdown-item">
-              <v-list-item-title>Profile</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="signOut" class="dropdown-item">
-              <v-list-item-title>Logout</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
       </v-container>
     </v-app-bar>
 
@@ -71,100 +70,41 @@
   </v-app>
 </template>
 
-<script setup>
-import { supabase } from '@/supabaseClient.js'
-import { ref, onMounted } from 'vue'
-import { useDisplay } from 'vuetify'
-import { defineProps } from 'vue'
-
-const { mobile } = useDisplay()
-const drawer = ref(false)
-const menu = ref(false)
-
-async function signOut() {
-  const { error } = await supabase.auth.signOut()
-
-  if (error) {
-    // Handle the error (e.g., show a message to the user)
-    console.error('Error signing out:', error.message)
-  } else {
-    // Optionally, handle success (e.g., redirect the user or show a message)
-    console.log('Successfully signed out!')
-    // Example: Redirect to the login page after sign out
-    window.location.href = '/' // Adjust the path based on your routing setup
-  }
-}
-
-const isLoading = ref(true)
-const profileImageUrl = ref(null)
-
-const fetchProfileImage = async () => {
-  try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
-    if (error || !user) {
-      console.error('Error fetching user:', error?.message)
-      return
-    }
-
-    const { data: profileData, error: fetchError } = await supabase
-      .from('profiles')
-      .select('profile_image')
-      .eq('v_id', user.id)
-      .single()
-
-    if (fetchError) {
-      console.error('Error fetching profile data:', fetchError.message)
-      return
-    }
-
-    if (profileData && profileData.profile_image) {
-      profileImageUrl.value = profileData.profile_image
-    }
-  } catch (error) {
-    console.error('Error fetching profile:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-onMounted(() => {
-  fetchProfileImage()
-})
-</script>
-
 <style scoped>
-.profile-image-container {
-  width: 40px; /* You can adjust the size */
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  border-radius: 50%; /* Makes the container circular */
-  background-color: #f0f0f0; /* Optional: Adds a background color */
-}
-
-.profile-image {
-  width: 100%; /* Makes the image fit the container */
-  height: 100%;
-  object-fit: cover; /* Ensures the image covers the entire container without distortion */
-  border-radius: 50%; /* Ensures the image is rounded */
-}
-
 /* Navbar Styles */
 .navbar {
   background-color: black;
   /* Semi-transparent fallback */
 }
 
+/* Container for navigation */
+.nav-container {
+  display: flex;
+  align-items: center;
+  gap: 70px; /* spacing between links and avatar */
+  transform: translate(25%);
+}
+
+/* Links section */
+.nav-links {
+  display: flex;
+  align-items: center;
+}
+
+/* Avatar section */
+.nav-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 50px; /* space between links and avatar */
+}
+
+/* Style for individual links */
 .nav-link {
   color: white;
   text-decoration: none;
-  margin-right: 50px;
   font-weight: 500;
+  font-size: 1.1rem;
   transition: opacity 0.3s ease;
   font-family: 'Lucida Sans', Geneva, Verdana, sans-serif;
 }

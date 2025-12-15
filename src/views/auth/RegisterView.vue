@@ -37,36 +37,61 @@ function toggleLoginForm() {
   showLoginForm.value = !showLoginForm.value
 }
 
+const normalizeName = (name) =>
+  (name || '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase()) // capitalize first letter of each word
+
 const onRegister = async () => {
   formAction.value = { ...formActionDefault }
   formAction.value.formProcess = true
 
-  const { data, error } = await supabase.auth.signUp({
-    email: formData.value.email,
-    password: formData.value.password,
-    options: {
-      data: {
-        fullname: formData.value.fullname,
+  try {
+    // 1️⃣ Sign up user with Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email: formData.value.email,
+      password: formData.value.password,
+      options: {
+        data: {
+          full_name: formData.value.fullname, // keep for metadata
+        },
       },
-    },
-  })
+    })
 
-  if (error) {
-    console.log(error)
-    formAction.value.formErrorMessage = error.message
-    formAction.value.formStatus = error.status
+    if (error) throw error
+
+    if (data?.user?.id) {
+      // 2️⃣ Normalize full name
+      const cleanedName = normalizeName(formData.value.fullname)
+
+      // 3️⃣ Insert profile row in 'profiles' table
+      const { error: insertError } = await supabase.from('profiles').insert({
+        id: data.user.id,
+        email: formData.value.email,
+        fullname: cleanedName,
+        profile_image: null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+
+      if (insertError) throw insertError
+
+      // 4️⃣ Success feedback
+      formAction.value.formSuccessMessage = 'Successfully Registered Account.'
+
+      // 5️⃣ Redirect after short delay
+      setTimeout(() => {
+        router.replace('/home')
+      }, 1500)
+    }
+  } catch (err) {
+    formAction.value.formErrorMessage = err.message || String(err)
+  } finally {
+    refVform.value?.reset()
+    formAction.value.formProcess = false
   }
-  if (data) {
-    formAction.value.formSuccessMessage = 'Successfully Registered Account.'
-
-    // Wait a moment to show success
-    setTimeout(() => {
-      router.replace('/home')
-    }, 1500)
-  }
-
-  refVform.value?.reset()
-  formAction.value.formProcess = false
 }
 
 const onFormSubmit = () => {

@@ -61,6 +61,20 @@ const onFormSubmit = () => {
   })
 }
 
+const loginWithGoogle = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + '/google/callback',
+    },
+  })
+
+  if (error) {
+    formAction.value.formErrorMessage = error.message
+    formAction.value.formStatus = error.status
+  }
+}
+
 function togglePasswordVisibility() {
   showPassword.value = !showPassword.value
 }
@@ -132,6 +146,16 @@ function togglePasswordVisibility() {
 
                     <v-btn class="mt-4 gradient-btn" type="submit" block rounded elevation="6">
                       SIGN IN
+                    </v-btn>
+                    <v-btn
+                      class="mt-4 google-btn"
+                      block
+                      rounded
+                      elevation="6"
+                      @click="loginWithGoogle"
+                    >
+                      <v-icon left>mdi-google</v-icon>
+                      Sign in with Google
                     </v-btn>
                   </v-form>
 
